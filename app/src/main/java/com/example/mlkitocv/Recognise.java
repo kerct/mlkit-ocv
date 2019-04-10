@@ -47,7 +47,7 @@ public class Recognise extends AppCompatActivity {
         }
 
         try {
-            //cameraSource.setMachineLearningFrameProcessor(new FaceDetectionProcessor(getResources()));
+            cameraSource.setMachineLearningFrameProcessor(new FaceDetectionProcessor());
         } catch (Exception e) {
             e.printStackTrace();
         }
