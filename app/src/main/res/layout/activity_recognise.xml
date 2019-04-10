@@ -6,4 +6,16 @@
     android:layout_height="match_parent"
     tools:context=".Recognise">
 
+    <com.example.mlkitocv.components.CameraSourcePreview
+        android:id="@+id/preview"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <com.example.mlkitocv.components.GraphicOverlay
+            android:id="@+id/overlay"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+    </com.example.mlkitocv.components.CameraSourcePreview>
+
 </android.support.constraint.ConstraintLayout>
