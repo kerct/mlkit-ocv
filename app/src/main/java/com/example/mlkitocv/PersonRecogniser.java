@@ -9,7 +9,7 @@ public class PersonRecogniser {
     private int count = 0;
 
     PersonRecogniser(String path) {
-        fr = new LBPHFaceRecognizer();
+        fr = LBPHFaceRecognizer.create();
         this.path = path;
     }
 
