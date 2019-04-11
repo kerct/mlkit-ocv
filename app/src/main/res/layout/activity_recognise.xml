@@ -18,4 +18,13 @@
 
     </com.example.mlkitocv.components.CameraSourcePreview>
 
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/fab"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:srcCompat="@drawable/flip_camera_white" />
+
 </android.support.constraint.ConstraintLayout>

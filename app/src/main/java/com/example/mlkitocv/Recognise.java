@@ -3,11 +3,14 @@ package com.example.mlkitocv;
 import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.hardware.Camera;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 
 import com.example.mlkitocv.components.CameraSource;
 import com.example.mlkitocv.components.CameraSourcePreview;
@@ -24,6 +27,7 @@ public class Recognise extends AppCompatActivity {
     private CameraSource cameraSource = null;
     private CameraSourcePreview preview;
     private GraphicOverlay graphicOverlay;
+    private boolean facingBack = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,6 +36,29 @@ public class Recognise extends AppCompatActivity {
 
         preview = findViewById(R.id.preview);
         graphicOverlay = findViewById(R.id.overlay);
+
+        FloatingActionButton fab = findViewById(R.id.fab);
+        if (Camera.getNumberOfCameras() == 1) {
+            fab.hide();
+        }
+        else{
+            fab.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    if (cameraSource != null) {
+                        if (facingBack) {
+                            cameraSource.setFacing(CameraSource.CAMERA_FACING_FRONT);
+                            facingBack = false;
+                        } else {
+                            cameraSource.setFacing(CameraSource.CAMERA_FACING_BACK);
+                            facingBack = true;
+                        }
+                    }
+                    preview.stop();
+                    startCameraSource();
+                }
+            });
+        }
 
         if (allPermissionsGranted()) {
             createCameraSource();
