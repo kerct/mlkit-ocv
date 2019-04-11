@@ -17,6 +17,7 @@ import com.example.mlkitocv.components.CameraSourcePreview;
 import com.example.mlkitocv.components.GraphicOverlay;
 
 import org.opencv.android.BaseLoaderCallback;
+import org.opencv.android.LoaderCallbackInterface;
 import org.opencv.android.OpenCVLoader;
 
 import java.io.IOException;
@@ -78,8 +79,14 @@ public class Recognise extends AppCompatActivity {
         baseLoaderCallback = new BaseLoaderCallback(this) {
             @Override
             public void onManagerConnected(int status) {
-
-                super.onManagerConnected(status);
+                switch(status) {
+                    case LoaderCallbackInterface.SUCCESS:
+                        // TODO
+                        break;
+                    default:
+                        super.onManagerConnected(status);
+                        break;
+                }
             }
         };
     }
