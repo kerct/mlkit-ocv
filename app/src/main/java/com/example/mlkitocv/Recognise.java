@@ -16,6 +16,9 @@ import com.example.mlkitocv.components.CameraSource;
 import com.example.mlkitocv.components.CameraSourcePreview;
 import com.example.mlkitocv.components.GraphicOverlay;
 
+import org.opencv.android.BaseLoaderCallback;
+import org.opencv.android.OpenCVLoader;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -28,6 +31,8 @@ public class Recognise extends AppCompatActivity {
     private CameraSourcePreview preview;
     private GraphicOverlay graphicOverlay;
     private boolean facingBack = true;
+
+    private BaseLoaderCallback baseLoaderCallback;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,6 +71,17 @@ public class Recognise extends AppCompatActivity {
         } else {
             getRuntimePermissions();
         }
+
+        if(OpenCVLoader.initDebug())
+            Log.i(TAG, "OpenCV loaded");
+
+        baseLoaderCallback = new BaseLoaderCallback(this) {
+            @Override
+            public void onManagerConnected(int status) {
+
+                super.onManagerConnected(status);
+            }
+        };
     }
 
     private void createCameraSource() {
