@@ -32,7 +32,6 @@ public class Recognise extends AppCompatActivity {
     private CameraSourcePreview preview;
     private GraphicOverlay graphicOverlay;
     private boolean facingBack = true;
-
     private BaseLoaderCallback baseLoaderCallback;
 
     @Override
