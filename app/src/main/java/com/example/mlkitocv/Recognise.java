@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.hardware.Camera;
+import android.os.Environment;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -33,6 +34,8 @@ public class Recognise extends AppCompatActivity {
     private GraphicOverlay graphicOverlay;
     private boolean facingBack = true;
     private BaseLoaderCallback baseLoaderCallback;
+    private PersonRecogniser personRecogniser;
+    private String path;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,12 +78,15 @@ public class Recognise extends AppCompatActivity {
         if(OpenCVLoader.initDebug())
             Log.i(TAG, "OpenCV loaded");
 
+        path = Environment.getExternalStorageDirectory()+"/facerecogOCV/";
+
         baseLoaderCallback = new BaseLoaderCallback(this) {
             @Override
             public void onManagerConnected(int status) {
                 switch(status) {
                     case LoaderCallbackInterface.SUCCESS:
-                        // TODO
+                        personRecogniser = new PersonRecogniser(path);
+                        personRecogniser.train();
                         break;
                     default:
                         super.onManagerConnected(status);
