@@ -69,7 +69,6 @@ public class PersonRecogniser {
         IplImage img;
         IplImage grayImg;
 
-
         int pathLength = path.length();
 
         for (File image: imageFiles) {
@@ -106,6 +105,55 @@ public class PersonRecogniser {
                 fr.train(images, labels);
 
         nameLabels.save();
+    }
+
+    private boolean canPredict()
+    {
+        return (nameLabels.max() > 1);
+    }
+
+    public String predict(Mat m) {
+        final int CONFIDENCE = 75;
+
+        if (!canPredict())
+            return "";
+
+        int n[] = new int[1]; // [0]
+        double p[] = new double[1]; // [0.0]
+        IplImage ipl = MatToIplImage(m);
+
+        fr.predict(ipl, n, p);
+
+        // set the associated confidence (distance)
+        if ((n[0] != -1) && (p[0] < CONFIDENCE)) {
+            return nameLabels.get(n[0]) + " " + p[0];
+        }
+        else
+            return "Unknown";
+    }
+
+    private IplImage MatToIplImage(Mat m)
+    {
+        Bitmap bmp = Bitmap.createBitmap(m.width(), m.height(), Bitmap.Config.ARGB_8888);
+        Utils.matToBitmap(m, bmp);
+        return BitmapToIplImage(bmp);
+    }
+
+    private IplImage BitmapToIplImage(Bitmap bmp) {
+        Bitmap bmp2 = Bitmap.createScaledBitmap(bmp, WIDTH, HEIGHT, false);
+        bmp = bmp2;
+
+        IplImage image = IplImage.create(bmp.getWidth(), bmp.getHeight(),
+                IPL_DEPTH_8U, 4);
+
+        bmp.copyPixelsToBuffer(image.getByteBuffer());
+
+        IplImage grayImg = IplImage.create(image.width(), image.height(),
+                IPL_DEPTH_8U, 1);
+
+        cvCvtColor(image, grayImg, opencv_imgproc.CV_BGR2GRAY);
+
+        return grayImg;
     }
 
 }
