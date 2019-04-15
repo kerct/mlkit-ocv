@@ -23,8 +23,10 @@ public class FaceDetectionProcessor extends VisionProcessorBase<List<FirebaseVis
 
     private static final String TAG = "FaceDetectionProcessor";
     private final FirebaseVisionFaceDetector detector;
+    private Recognise recognise;
 
-    public FaceDetectionProcessor() {
+    public FaceDetectionProcessor(Recognise r) {
+        recognise = r;
         FirebaseVisionFaceDetectorOptions options =
                 new FirebaseVisionFaceDetectorOptions.Builder().build();
         detector = FirebaseVision.getInstance().getVisionFaceDetector(options);
@@ -60,7 +62,7 @@ public class FaceDetectionProcessor extends VisionProcessorBase<List<FirebaseVis
 
         for (int i = 0; i < faces.size(); ++i) {
             FirebaseVisionFace face = faces.get(i);
-
+            recognise.recogniseFace(face);
             /*
             int cameraFacing =
                     frameMetadata != null ? frameMetadata.getCameraFacing() :

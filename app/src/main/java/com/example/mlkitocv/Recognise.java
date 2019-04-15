@@ -16,11 +16,13 @@ import android.view.View;
 import com.example.mlkitocv.components.CameraSource;
 import com.example.mlkitocv.components.CameraSourcePreview;
 import com.example.mlkitocv.components.GraphicOverlay;
+import com.google.firebase.ml.vision.face.FirebaseVisionFace;
 
 import org.opencv.android.BaseLoaderCallback;
 import org.opencv.android.LoaderCallbackInterface;
 import org.opencv.android.OpenCVLoader;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -33,9 +35,11 @@ public class Recognise extends AppCompatActivity {
     private CameraSourcePreview preview;
     private GraphicOverlay graphicOverlay;
     private boolean facingBack = true;
+
     private BaseLoaderCallback baseLoaderCallback;
     private PersonRecogniser personRecogniser;
     private String path;
+    private Labels nameLabels;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -79,6 +83,12 @@ public class Recognise extends AppCompatActivity {
             Log.i(TAG, "OpenCV loaded");
 
         path = Environment.getExternalStorageDirectory()+"/facerecogOCV/";
+        nameLabels = new Labels(path);
+        boolean success=(new File(path)).mkdirs();
+        if (!success)
+        {
+            Log.e("Error","Error creating directory");
+        }
 
         baseLoaderCallback = new BaseLoaderCallback(this) {
             @Override
@@ -96,13 +106,17 @@ public class Recognise extends AppCompatActivity {
         };
     }
 
+    public void recogniseFace(FirebaseVisionFace face) {
+        //personRecogniser.predict(face);
+    }
+
     private void createCameraSource() {
         if (cameraSource == null) {
             cameraSource = new CameraSource(this, graphicOverlay);
         }
 
         try {
-            cameraSource.setMachineLearningFrameProcessor(new FaceDetectionProcessor());
+            cameraSource.setMachineLearningFrameProcessor(new FaceDetectionProcessor(this));
         } catch (Exception e) {
             e.printStackTrace();
         }
