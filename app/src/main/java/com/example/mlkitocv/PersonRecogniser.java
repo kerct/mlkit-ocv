@@ -26,13 +26,13 @@ public class PersonRecogniser {
     private FaceRecognizer fr;
     private String path;
     private int count = 0;
-    private Labels labels;
+    private Labels nameLabels;
 
     PersonRecogniser(String path) {
-        // TODO
-        fr = com.googlecode.javacv.cpp.opencv_contrib.createLBPHFaceRecognizer(2,8,8,8,200);
+        // using default values
+        fr = com.googlecode.javacv.cpp.opencv_contrib.createLBPHFaceRecognizer();
         this.path = path;
-        labels = new Labels(path);
+        nameLabels = new Labels(path);
     }
 
     private void savePic(Mat m, String name) {
@@ -69,24 +69,26 @@ public class PersonRecogniser {
         IplImage img;
         IplImage grayImg;
 
-        // TODO
-        int i1 = path.length();
 
-        for (File image : imageFiles) {
+        int pathLength = path.length();
+
+        for (File image: imageFiles) {
             String p = image.getAbsolutePath();
             img = cvLoadImage(p);
 
-            int i2=p.lastIndexOf("-");
-            int i3=p.lastIndexOf(".");
-            int icount=Integer.parseInt(p.substring(i2+1,i3));
-            if (count<icount) count++;
+            int nameLastIndex = p.lastIndexOf("-");
+            int numLastIndex = p.lastIndexOf(".");
+            int currCount = Integer.parseInt(p.substring(nameLastIndex + 1, numLastIndex));
 
-            String description=p.substring(i1,i2);
+            if (count < currCount)
+                count++;
 
-            if (labelsFile.get(description)<0)
-                labelsFile.add(description, labelsFile.max()+1);
+            String description = p.substring(pathLength, nameLastIndex);
 
-            label = labelsFile.get(description);
+            if (nameLabels.get(description) < 0)
+                nameLabels.add(description, nameLabels.max() + 1);
+
+            label = nameLabels.get(description);
 
             grayImg = IplImage.create(img.width(), img.height(), IPL_DEPTH_8U, 1);
 
@@ -98,10 +100,12 @@ public class PersonRecogniser {
 
             counter++;
         }
-        if (counter>0)
-            if (labelsFile.max()>1)
+
+        if (counter > 0)
+            if (nameLabels.max() > 1)
                 fr.train(images, labels);
-        labelsFile.save();
+
+        nameLabels.save();
     }
 
 }
