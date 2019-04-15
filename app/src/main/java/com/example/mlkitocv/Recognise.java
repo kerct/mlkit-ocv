@@ -3,6 +3,8 @@ package com.example.mlkitocv;
 import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.Rect;
 import android.hardware.Camera;
 import android.os.Environment;
 import android.support.design.widget.FloatingActionButton;
@@ -36,10 +38,10 @@ public class Recognise extends AppCompatActivity {
     private GraphicOverlay graphicOverlay;
     private boolean facingBack = true;
 
-    private BaseLoaderCallback baseLoaderCallback;
     private PersonRecogniser personRecogniser;
     private String path;
     private Labels nameLabels;
+    private BaseLoaderCallback baseLoaderCallback;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -79,15 +81,18 @@ public class Recognise extends AppCompatActivity {
             getRuntimePermissions();
         }
 
-        if(OpenCVLoader.initDebug())
-            Log.i(TAG, "OpenCV loaded");
-
         path = Environment.getExternalStorageDirectory()+"/facerecogOCV/";
         nameLabels = new Labels(path);
         boolean success=(new File(path)).mkdirs();
         if (!success)
         {
             Log.e("Error","Error creating directory");
+        }
+
+        if(OpenCVLoader.initDebug()){
+            Log.i(TAG, "OpenCV loaded");
+        } else{
+            Log.e(TAG, "OpenCV not loaded");
         }
 
         baseLoaderCallback = new BaseLoaderCallback(this) {
@@ -97,6 +102,7 @@ public class Recognise extends AppCompatActivity {
                     case LoaderCallbackInterface.SUCCESS:
                         personRecogniser = new PersonRecogniser(path);
                         personRecogniser.train();
+                        Log.d(TAG, "personRecogniser trained");
                         break;
                     default:
                         super.onManagerConnected(status);
@@ -104,10 +110,17 @@ public class Recognise extends AppCompatActivity {
                 }
             }
         };
+
+        baseLoaderCallback.onManagerConnected(BaseLoaderCallback.SUCCESS);
+
     }
 
-    public void recogniseFace(FirebaseVisionFace face) {
-        //personRecogniser.predict(face);
+    public void recogniseFace(Bitmap original, FirebaseVisionFace face) {
+        Rect boundingBox = face.getBoundingBox();
+        Bitmap bmp = Bitmap.createBitmap(original, boundingBox.left, boundingBox.top,
+                boundingBox.width(), boundingBox.height());
+        Log.d(TAG, "recogniseFace()");
+        Log.d(TAG, "predicted: " + personRecogniser.predict(bmp));
     }
 
     private void createCameraSource() {

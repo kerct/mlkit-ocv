@@ -20,6 +20,7 @@ import com.googlecode.javacv.cpp.opencv_core.IplImage;
 import com.googlecode.javacv.cpp.opencv_core.MatVector;
 
 public class PersonRecogniser {
+    private static final String TAG = "PersonRecogniser";
     private static final int WIDTH = 128;
     private static final int HEIGHT = 128;
 
@@ -112,17 +113,22 @@ public class PersonRecogniser {
         return (nameLabels.max() > 1);
     }
 
-    public String predict(Mat m) {
+    public String predict(Bitmap bmp) {
         final int CONFIDENCE = 75;
 
-        if (!canPredict())
+        if (!canPredict()){
+            Log.d(TAG, "can't predict");
             return "";
+        }
+        Log.d(TAG, "can predict");
 
         int n[] = new int[1]; // [0]
         double p[] = new double[1]; // [0.0]
-        IplImage ipl = MatToIplImage(m);
+        IplImage ipl = BitmapToIplImage(bmp);
 
+        Log.d(TAG, "predicting");
         fr.predict(ipl, n, p);
+        Log.d(TAG, "predicted");
 
         // set the associated confidence (distance)
         if ((n[0] != -1) && (p[0] < CONFIDENCE)) {
@@ -132,16 +138,8 @@ public class PersonRecogniser {
             return "Unknown";
     }
 
-    private IplImage MatToIplImage(Mat m)
-    {
-        Bitmap bmp = Bitmap.createBitmap(m.width(), m.height(), Bitmap.Config.ARGB_8888);
-        Utils.matToBitmap(m, bmp);
-        return BitmapToIplImage(bmp);
-    }
-
     private IplImage BitmapToIplImage(Bitmap bmp) {
-        Bitmap bmp2 = Bitmap.createScaledBitmap(bmp, WIDTH, HEIGHT, false);
-        bmp = bmp2;
+        bmp = Bitmap.createScaledBitmap(bmp, WIDTH, HEIGHT, false);
 
         IplImage image = IplImage.create(bmp.getWidth(), bmp.getHeight(),
                 IPL_DEPTH_8U, 4);
