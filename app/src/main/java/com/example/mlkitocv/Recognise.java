@@ -42,23 +42,6 @@ public class Recognise extends AppCompatActivity {
     private String path;
 
     Labels nameLabels;
-    BaseLoaderCallback baseLoaderCallback = new BaseLoaderCallback(this) {
-        @Override
-        public void onManagerConnected(int status) {
-            switch(status) {
-                case LoaderCallbackInterface.SUCCESS:
-                    Log.d(TAG, "on manager connected");
-                    personRecogniser = new PersonRecogniser(path);
-                    Log.d(TAG, "created");
-                    personRecogniser.train();
-                    Log.d(TAG, "personRecogniser trained");
-                    break;
-                default:
-                    super.onManagerConnected(status);
-                    break;
-            }
-        }
-    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -106,23 +89,21 @@ public class Recognise extends AppCompatActivity {
             Log.e("Error","Error creating directory");
         }
 
-        personRecogniser = new PersonRecogniser(path);
-        Log.d(TAG, "created");
-        personRecogniser.train();
-        Log.d(TAG, "personRecogniser trained");
-
         if(OpenCVLoader.initDebug()){
             Log.i(TAG, "OpenCV loaded");
         } else{
             Log.e(TAG, "OpenCV not loaded");
         }
+
+        personRecogniser = new PersonRecogniser(path);
+        personRecogniser.train();
+        Log.d(TAG, "personRecogniser trained");
     }
 
     public void recogniseFace(Bitmap original, FirebaseVisionFace face) {
         Rect boundingBox = face.getBoundingBox();
         Bitmap bmp = Bitmap.createBitmap(original, boundingBox.left, boundingBox.top,
                 boundingBox.width(), boundingBox.height());
-        Log.d(TAG, "recogniseFace()");
         Log.d(TAG, "predicted: " + personRecogniser.predict(bmp));
     }
 

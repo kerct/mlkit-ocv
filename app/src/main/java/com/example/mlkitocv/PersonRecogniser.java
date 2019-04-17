@@ -132,10 +132,7 @@ public class PersonRecogniser {
         IntPointer label = new IntPointer(1);
         DoublePointer confidence = new DoublePointer(1);
 
-        //Bitmap greyBmp = toGreyScale(bmp);
-        //Mat mat = bitmapToMat(greyBmp);
         Mat mat = bitmapToMat(bmp);
-
         Mat greyMat = new Mat();
         cvtColor(mat, greyMat, Imgproc.COLOR_RGBA2GRAY);
         Log.d(TAG, "mat width " + mat.arrayWidth());
@@ -154,22 +151,6 @@ public class PersonRecogniser {
         }
         else
             return "Unknown";
-    }
-
-    private Bitmap toGreyScale(Bitmap bmpOriginal) {
-        int width, height;
-        height = bmpOriginal.getHeight();
-        width = bmpOriginal.getWidth();
-
-        Bitmap bmpGreyScale = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
-        Canvas c = new Canvas(bmpGreyScale);
-        Paint paint = new Paint();
-        ColorMatrix cm = new ColorMatrix();
-        cm.setSaturation(0);
-        ColorMatrixColorFilter f = new ColorMatrixColorFilter(cm);
-        paint.setColorFilter(f);
-        c.drawBitmap(bmpOriginal, 0, 0, paint);
-        return bmpGreyScale;
     }
 
     private Mat bitmapToMat(Bitmap bmp) {
