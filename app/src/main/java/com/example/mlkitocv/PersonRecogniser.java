@@ -117,7 +117,7 @@ public class PersonRecogniser {
     }
 
     public String predict(Bitmap bmp) {
-        final int PERCENTAGE = 70;
+        final int PERCENTAGE = 60;
 
         if (!canPredict()){
             Log.d(TAG, "can't predict");
@@ -147,7 +147,7 @@ public class PersonRecogniser {
     }
 
     private double getPercentage(double dist) {
-        double distMax = 250.0;
+        double distMax = 200.0;
         return 100 - (dist / distMax * 100);
     }
 

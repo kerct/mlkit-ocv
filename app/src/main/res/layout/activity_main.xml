@@ -33,8 +33,8 @@
         <Button
             android:id="@+id/recognizeButton"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:layout_height="wrap_content"
             android:text="@string/recognise"
             android:textSize="15sp"
             android:textAllCaps="false"

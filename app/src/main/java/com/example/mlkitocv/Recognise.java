@@ -100,11 +100,11 @@ public class Recognise extends AppCompatActivity {
         Log.d(TAG, "personRecogniser trained");
     }
 
-    public void recogniseFace(Bitmap original, FirebaseVisionFace face) {
+    public String recogniseFace(Bitmap original, FirebaseVisionFace face) {
         Rect boundingBox = face.getBoundingBox();
         Bitmap bmp = Bitmap.createBitmap(original, boundingBox.left, boundingBox.top,
                 boundingBox.width(), boundingBox.height());
-        Log.d(TAG, "predicted: " + personRecogniser.predict(bmp));
+        return personRecogniser.predict(bmp);
     }
 
     private void createCameraSource() {
