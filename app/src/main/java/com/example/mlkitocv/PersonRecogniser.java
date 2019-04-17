@@ -1,10 +1,6 @@
 package com.example.mlkitocv;
 
 import android.graphics.Bitmap;
-import android.graphics.Canvas;
-import android.graphics.ColorMatrix;
-import android.graphics.ColorMatrixColorFilter;
-import android.graphics.Paint;
 import android.util.Log;
 
 import java.io.File;
@@ -121,29 +117,26 @@ public class PersonRecogniser {
     }
 
     public String predict(Bitmap bmp) {
-        final int CONFIDENCE = 75;
+        final int CONFIDENCE = 115;
 
         if (!canPredict()){
             Log.d(TAG, "can't predict");
             return "";
         }
-        Log.d(TAG, "can predict");
 
         IntPointer label = new IntPointer(1);
         DoublePointer confidence = new DoublePointer(1);
 
         Mat mat = bitmapToMat(bmp);
         Mat greyMat = new Mat();
-        cvtColor(mat, greyMat, Imgproc.COLOR_RGBA2GRAY);
-        Log.d(TAG, "mat width " + mat.arrayWidth());
-        Log.d(TAG, "mat height " + mat.arrayHeight());
+        cvtColor(mat, greyMat, Imgproc.COLOR_RGB2GRAY);
+        //flip(greyMat, greyMat, 1);
 
-        Log.d(TAG, "predicting");
         fr.predict(greyMat, label, confidence);
-        Log.d(TAG, "predicted");
 
         int predictedLabel = label.get(0);
         double predictedConfidence = confidence.get(0);
+        // double percentage = getPercentage(predictedConfidence);
 
         // set the associated confidence (distance)
         if ((predictedLabel != -1) && (predictedConfidence < CONFIDENCE)) {
@@ -151,6 +144,12 @@ public class PersonRecogniser {
         }
         else
             return "Unknown";
+    }
+
+    private double getPercentage(double dis) {
+        double disMax = 250.0;
+        double simMax = 100.0;
+        return (simMax - simMax) / disMax * dis;
     }
 
     private Mat bitmapToMat(Bitmap bmp) {
