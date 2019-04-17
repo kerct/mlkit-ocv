@@ -117,7 +117,7 @@ public class PersonRecogniser {
     }
 
     public String predict(Bitmap bmp) {
-        final int CONFIDENCE = 115;
+        final int PERCENTAGE = 70;
 
         if (!canPredict()){
             Log.d(TAG, "can't predict");
@@ -136,20 +136,19 @@ public class PersonRecogniser {
 
         int predictedLabel = label.get(0);
         double predictedConfidence = confidence.get(0);
-        // double percentage = getPercentage(predictedConfidence);
+        double percentage = getPercentage(predictedConfidence);
 
         // set the associated confidence (distance)
-        if ((predictedLabel != -1) && (predictedConfidence < CONFIDENCE)) {
-            return nameLabels.get(predictedLabel) + " " + predictedConfidence;
+        if ((predictedLabel != -1) && (percentage > PERCENTAGE)) {
+            return nameLabels.get(predictedLabel) + " " + percentage + "%";
         }
         else
             return "Unknown";
     }
 
-    private double getPercentage(double dis) {
-        double disMax = 250.0;
-        double simMax = 100.0;
-        return (simMax - simMax) / disMax * dis;
+    private double getPercentage(double dist) {
+        double distMax = 250.0;
+        return 100 - (dist / distMax * 100);
     }
 
     private Mat bitmapToMat(Bitmap bmp) {
