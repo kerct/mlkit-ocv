@@ -40,8 +40,25 @@ public class Recognise extends AppCompatActivity {
 
     private PersonRecogniser personRecogniser;
     private String path;
-    private Labels nameLabels;
-    private BaseLoaderCallback baseLoaderCallback;
+
+    Labels nameLabels;
+    BaseLoaderCallback baseLoaderCallback = new BaseLoaderCallback(this) {
+        @Override
+        public void onManagerConnected(int status) {
+            switch(status) {
+                case LoaderCallbackInterface.SUCCESS:
+                    Log.d(TAG, "on manager connected");
+                    personRecogniser = new PersonRecogniser(path);
+                    Log.d(TAG, "created");
+                    personRecogniser.train();
+                    Log.d(TAG, "personRecogniser trained");
+                    break;
+                default:
+                    super.onManagerConnected(status);
+                    break;
+            }
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -89,30 +106,16 @@ public class Recognise extends AppCompatActivity {
             Log.e("Error","Error creating directory");
         }
 
+        personRecogniser = new PersonRecogniser(path);
+        Log.d(TAG, "created");
+        personRecogniser.train();
+        Log.d(TAG, "personRecogniser trained");
+
         if(OpenCVLoader.initDebug()){
             Log.i(TAG, "OpenCV loaded");
         } else{
             Log.e(TAG, "OpenCV not loaded");
         }
-
-        baseLoaderCallback = new BaseLoaderCallback(this) {
-            @Override
-            public void onManagerConnected(int status) {
-                switch(status) {
-                    case LoaderCallbackInterface.SUCCESS:
-                        personRecogniser = new PersonRecogniser(path);
-                        personRecogniser.train();
-                        Log.d(TAG, "personRecogniser trained");
-                        break;
-                    default:
-                        super.onManagerConnected(status);
-                        break;
-                }
-            }
-        };
-
-        baseLoaderCallback.onManagerConnected(BaseLoaderCallback.SUCCESS);
-
     }
 
     public void recogniseFace(Bitmap original, FirebaseVisionFace face) {
@@ -157,6 +160,14 @@ public class Recognise extends AppCompatActivity {
     public void onResume() {
         super.onResume();
         startCameraSource();
+        /*
+        if (!OpenCVLoader.initDebug()) {
+            Log.d(TAG, "Internal OpenCV library not found. Using OpenCV Manager for initialization");
+            OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION, this, baseLoaderCallback);
+        } else {
+            Log.d(TAG, "OpenCV library found inside package. Using it!");
+            baseLoaderCallback.onManagerConnected(BaseLoaderCallback.SUCCESS);
+        }*/
     }
 
     @Override

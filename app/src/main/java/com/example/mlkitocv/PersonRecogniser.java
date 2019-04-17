@@ -3,21 +3,24 @@ package com.example.mlkitocv;
 import android.graphics.Bitmap;
 import android.util.Log;
 
-import org.opencv.android.Utils;
-import org.opencv.core.Mat;
-
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FilenameFilter;
+import java.nio.IntBuffer;
 
-import static com.googlecode.javacv.cpp.opencv_highgui.*;
-import static com.googlecode.javacv.cpp.opencv_core.*;
-import static com.googlecode.javacv.cpp.opencv_imgproc.*;
+import org.bytedeco.javacv.OpenCVFrameConverter;
+import org.bytedeco.opencv.opencv_core.*;
+import org.bytedeco.opencv.opencv_face.*;
+import org.bytedeco.javacpp.BytePointer;
+import org.bytedeco.javacpp.IntPointer;
+import org.bytedeco.javacpp.DoublePointer;
+import org.opencv.android.Utils;
 
-import com.googlecode.javacv.cpp.opencv_imgproc;
-import com.googlecode.javacv.cpp.opencv_contrib.FaceRecognizer;
-import com.googlecode.javacv.cpp.opencv_core.IplImage;
-import com.googlecode.javacv.cpp.opencv_core.MatVector;
+import static org.bytedeco.opencv.global.opencv_core.*;
+import static org.bytedeco.opencv.global.opencv_face.*;
+import static org.bytedeco.opencv.global.opencv_imgcodecs.*;
+import static org.bytedeco.opencv.global.opencv_imgproc.CV_BGR2GRAY;
+import static org.bytedeco.opencv.global.opencv_imgproc.cvCvtColor;
 
 public class PersonRecogniser {
     private static final String TAG = "PersonRecogniser";
@@ -30,13 +33,16 @@ public class PersonRecogniser {
     private Labels nameLabels;
 
     PersonRecogniser(String path) {
+        Log.d(TAG, "creating person recogniser");
         // using default values
-        fr = com.googlecode.javacv.cpp.opencv_contrib.createLBPHFaceRecognizer();
+        fr = LBPHFaceRecognizer.create();
+        Log.d(TAG, "created face recogniser");
         this.path = path;
         nameLabels = new Labels(path);
     }
 
     private void savePic(Mat m, String name) {
+        /*
         Bitmap bmp = Bitmap.createBitmap(m.width(), m.height(), Bitmap.Config.ARGB_8888);
         Utils.matToBitmap(m, bmp);
         bmp = Bitmap.createScaledBitmap(bmp, WIDTH, HEIGHT, false);
@@ -50,7 +56,7 @@ public class PersonRecogniser {
         } catch (Exception e) {
             Log.e("error",e.getCause() + " " + e.getMessage());
             e.printStackTrace();
-        }
+        }*/
     }
 
     public void train() {
@@ -60,21 +66,18 @@ public class PersonRecogniser {
                 return name.toLowerCase().endsWith(".jpg");
             }
         };
+
         File[] imageFiles = root.listFiles(pngFilter);
         MatVector images = new MatVector(imageFiles.length);
-        int[] labels = new int[imageFiles.length];
+
+        Mat labels = new Mat(imageFiles.length, 1, CV_32SC1);
+        IntBuffer labelsBuf = labels.createBuffer();
 
         int counter = 0;
-        int label;
-
-        IplImage img;
-        IplImage grayImg;
-
         int pathLength = path.length();
 
         for (File image: imageFiles) {
             String p = image.getAbsolutePath();
-            img = cvLoadImage(p);
 
             int nameLastIndex = p.lastIndexOf("-");
             int numLastIndex = p.lastIndexOf(".");
@@ -88,16 +91,11 @@ public class PersonRecogniser {
             if (nameLabels.get(description) < 0)
                 nameLabels.add(description, nameLabels.max() + 1);
 
-            label = nameLabels.get(description);
+            int label = nameLabels.get(description);
 
-            grayImg = IplImage.create(img.width(), img.height(), IPL_DEPTH_8U, 1);
-
-            cvCvtColor(img, grayImg, CV_BGR2GRAY);
-
-            images.put(counter, grayImg);
-
-            labels[counter] = label;
-
+            Mat img = imread(image.getAbsolutePath(), IMREAD_GRAYSCALE);
+            images.put(counter, img);
+            labelsBuf.put(counter, label);
             counter++;
         }
 
@@ -122,36 +120,36 @@ public class PersonRecogniser {
         }
         Log.d(TAG, "can predict");
 
-        int n[] = new int[1]; // [0]
-        double p[] = new double[1]; // [0.0]
-        IplImage ipl = BitmapToIplImage(bmp);
+        IntPointer label = new IntPointer(1);
+        DoublePointer confidence = new DoublePointer(1);
+        Mat mat = bitmapToMat(bmp);
 
         Log.d(TAG, "predicting");
-        fr.predict(ipl, n, p);
+        fr.predict(mat, label, confidence);
         Log.d(TAG, "predicted");
 
+        int predictedLabel = label.get(0);
+        double predictedConfidence = confidence.get(0);
+
         // set the associated confidence (distance)
-        if ((n[0] != -1) && (p[0] < CONFIDENCE)) {
-            return nameLabels.get(n[0]) + " " + p[0];
+        if ((predictedLabel != -1) && (predictedConfidence < CONFIDENCE)) {
+            return nameLabels.get(predictedLabel) + " " + predictedConfidence;
         }
         else
             return "Unknown";
     }
 
-    private IplImage BitmapToIplImage(Bitmap bmp) {
-        bmp = Bitmap.createScaledBitmap(bmp, WIDTH, HEIGHT, false);
+    private Mat bitmapToMat(Bitmap bmp) {
+        OpenCVFrameConverter.ToMat convertToMat = new OpenCVFrameConverter.ToMat();
+        OpenCVFrameConverter.ToOrgOpenCvCoreMat convertToOCVMat = new OpenCVFrameConverter.ToOrgOpenCvCoreMat();
 
-        IplImage image = IplImage.create(bmp.getWidth(), bmp.getHeight(),
-                IPL_DEPTH_8U, 4);
+        Mat mat = new Mat(bmp.getWidth(), bmp.getHeight());
+        org.opencv.core.Mat cvmat = convertToOCVMat.convert(convertToMat.convert(mat));
+        Bitmap bmp32 = bmp.copy(Bitmap.Config.ARGB_8888, true);
+        Utils.bitmapToMat(bmp32, cvmat);
+        mat = convertToMat.convert(convertToMat.convert(cvmat));
 
-        bmp.copyPixelsToBuffer(image.getByteBuffer());
-
-        IplImage grayImg = IplImage.create(image.width(), image.height(),
-                IPL_DEPTH_8U, 1);
-
-        cvCvtColor(image, grayImg, opencv_imgproc.CV_BGR2GRAY);
-
-        return grayImg;
+        return mat;
     }
 
 }
