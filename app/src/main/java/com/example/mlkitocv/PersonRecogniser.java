@@ -7,6 +7,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FilenameFilter;
 import java.nio.IntBuffer;
+import java.util.Locale;
 
 import org.bytedeco.javacv.OpenCVFrameConverter;
 import org.bytedeco.opencv.opencv_core.*;
@@ -38,9 +39,11 @@ public class PersonRecogniser {
     private Labels nameLabels;
 
     PersonRecogniser(String path) {
-        Log.d(TAG, "creating person recogniser");
         // using default values
+        //fr = EigenFaceRecognizer.create();
+        //fr = FisherFaceRecognizer.create();
         fr = LBPHFaceRecognizer.create();
+
         Log.d(TAG, "created face recogniser");
         this.path = path;
         nameLabels = new Labels(path);
@@ -117,7 +120,7 @@ public class PersonRecogniser {
     }
 
     public String predict(Bitmap bmp) {
-        final int PERCENTAGE = 60;
+        final int PERCENTAGE = 50;
 
         if (!canPredict()){
             Log.d(TAG, "can't predict");
@@ -137,10 +140,11 @@ public class PersonRecogniser {
         int predictedLabel = label.get(0);
         double predictedConfidence = confidence.get(0);
         double percentage = getPercentage(predictedConfidence);
+        String formatted = String.format(Locale.ENGLISH, "%.1f", percentage);
 
         // set the associated confidence (distance)
         if ((predictedLabel != -1) && (percentage > PERCENTAGE)) {
-            return nameLabels.get(predictedLabel) + " " + percentage + "%";
+            return nameLabels.get(predictedLabel) + " " + formatted + "%";
         }
         else
             return "Unknown";
