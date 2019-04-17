@@ -1,6 +1,10 @@
 package com.example.mlkitocv;
 
 import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.ColorMatrix;
+import android.graphics.ColorMatrixColorFilter;
+import android.graphics.Paint;
 import android.util.Log;
 
 import java.io.File;
@@ -15,12 +19,17 @@ import org.bytedeco.javacpp.BytePointer;
 import org.bytedeco.javacpp.IntPointer;
 import org.bytedeco.javacpp.DoublePointer;
 import org.opencv.android.Utils;
+import org.opencv.imgproc.Imgproc;
 
 import static org.bytedeco.opencv.global.opencv_core.*;
 import static org.bytedeco.opencv.global.opencv_face.*;
 import static org.bytedeco.opencv.global.opencv_imgcodecs.*;
+import static org.bytedeco.opencv.global.opencv_imgproc.COLOR_GRAY2BGR;
 import static org.bytedeco.opencv.global.opencv_imgproc.CV_BGR2GRAY;
+import static org.bytedeco.opencv.global.opencv_imgproc.CV_BGRA2GRAY;
+import static org.bytedeco.opencv.global.opencv_imgproc.CV_RGBA2GRAY;
 import static org.bytedeco.opencv.global.opencv_imgproc.cvCvtColor;
+import static org.bytedeco.opencv.global.opencv_imgproc.cvtColor;
 
 public class PersonRecogniser {
     private static final String TAG = "PersonRecogniser";
@@ -122,10 +131,18 @@ public class PersonRecogniser {
 
         IntPointer label = new IntPointer(1);
         DoublePointer confidence = new DoublePointer(1);
+
+        //Bitmap greyBmp = toGreyScale(bmp);
+        //Mat mat = bitmapToMat(greyBmp);
         Mat mat = bitmapToMat(bmp);
 
+        Mat greyMat = new Mat();
+        cvtColor(mat, greyMat, Imgproc.COLOR_RGBA2GRAY);
+        Log.d(TAG, "mat width " + mat.arrayWidth());
+        Log.d(TAG, "mat height " + mat.arrayHeight());
+
         Log.d(TAG, "predicting");
-        fr.predict(mat, label, confidence);
+        fr.predict(greyMat, label, confidence);
         Log.d(TAG, "predicted");
 
         int predictedLabel = label.get(0);
@@ -139,15 +156,34 @@ public class PersonRecogniser {
             return "Unknown";
     }
 
+    private Bitmap toGreyScale(Bitmap bmpOriginal) {
+        int width, height;
+        height = bmpOriginal.getHeight();
+        width = bmpOriginal.getWidth();
+
+        Bitmap bmpGreyScale = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+        Canvas c = new Canvas(bmpGreyScale);
+        Paint paint = new Paint();
+        ColorMatrix cm = new ColorMatrix();
+        cm.setSaturation(0);
+        ColorMatrixColorFilter f = new ColorMatrixColorFilter(cm);
+        paint.setColorFilter(f);
+        c.drawBitmap(bmpOriginal, 0, 0, paint);
+        return bmpGreyScale;
+    }
+
     private Mat bitmapToMat(Bitmap bmp) {
         OpenCVFrameConverter.ToMat convertToMat = new OpenCVFrameConverter.ToMat();
         OpenCVFrameConverter.ToOrgOpenCvCoreMat convertToOCVMat = new OpenCVFrameConverter.ToOrgOpenCvCoreMat();
 
+        Log.d(TAG, "width: " + bmp.getWidth());
+        Log.d(TAG, "height: " + bmp.getHeight());
+
         Mat mat = new Mat(bmp.getWidth(), bmp.getHeight());
-        org.opencv.core.Mat cvmat = convertToOCVMat.convert(convertToMat.convert(mat));
-        Bitmap bmp32 = bmp.copy(Bitmap.Config.ARGB_8888, true);
-        Utils.bitmapToMat(bmp32, cvmat);
-        mat = convertToMat.convert(convertToMat.convert(cvmat));
+        //Mat mat = new Mat(WIDTH, HEIGHT);
+        org.opencv.core.Mat cvMat = convertToOCVMat.convert(convertToMat.convert(mat));
+        Utils.bitmapToMat(bmp, cvMat);
+        mat = convertToMat.convert(convertToMat.convert(cvMat));
 
         return mat;
     }
