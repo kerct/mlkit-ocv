@@ -120,6 +120,13 @@ public class PersonRecogniser {
     }
 
     public String predict(Bitmap bmp) {
+        // scale image to same size as trained images
+        // required for eigenface and fisherface recognisers
+        // (from the docs) filter
+        // true: bilinear filtering; better image quality, worse performance (recommended)
+        // false: nearest-neighbor scaling; worse image quality, but faster
+        bmp = Bitmap.createScaledBitmap(bmp, WIDTH, HEIGHT, true);
+
         final int PERCENTAGE = 50;
 
         if (!canPredict()){
