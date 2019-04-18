@@ -102,9 +102,17 @@ public class Recognise extends AppCompatActivity {
 
     public String recogniseFace(Bitmap original, FirebaseVisionFace face) {
         Rect boundingBox = face.getBoundingBox();
-        Bitmap bmp = Bitmap.createBitmap(original, boundingBox.left, boundingBox.top,
-                boundingBox.width(), boundingBox.height());
-        return personRecogniser.predict(bmp);
+        if(rectInScreen(original, boundingBox)){
+            Bitmap bmp = Bitmap.createBitmap(original, boundingBox.left, boundingBox.top,
+                    boundingBox.width(), boundingBox.height());
+            return personRecogniser.predict(bmp);
+        }
+        return "Unknown";
+    }
+
+    private boolean rectInScreen(Bitmap bmp, Rect rect) {
+        Rect screen = new Rect(0, 0, bmp.getWidth(), bmp.getHeight());
+        return screen.contains(rect);
     }
 
     private void createCameraSource() {
