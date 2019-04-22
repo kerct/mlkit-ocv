@@ -23,10 +23,19 @@ public class FaceDetectionProcessor extends VisionProcessorBase<List<FirebaseVis
 
     private static final String TAG = "FaceDetectionProcessor";
     private final FirebaseVisionFaceDetector detector;
+    private boolean training;
     private Recognise recognise;
 
     public FaceDetectionProcessor(Recognise r) {
+        training = false;
         recognise = r;
+        FirebaseVisionFaceDetectorOptions options =
+                new FirebaseVisionFaceDetectorOptions.Builder().build();
+        detector = FirebaseVision.getInstance().getVisionFaceDetector(options);
+    }
+
+    public FaceDetectionProcessor(Training t) {
+        training = true;
         FirebaseVisionFaceDetectorOptions options =
                 new FirebaseVisionFaceDetectorOptions.Builder().build();
         detector = FirebaseVision.getInstance().getVisionFaceDetector(options);
@@ -58,14 +67,16 @@ public class FaceDetectionProcessor extends VisionProcessorBase<List<FirebaseVis
             graphicOverlay.add(imageGraphic);
         }
 
-        Log.d(TAG, faces.size() + " face(s) detected");
-
         for (int i = 0; i < faces.size(); ++i) {
             FirebaseVisionFace face = faces.get(i);
-            String res = recognise.recogniseFace(originalCameraImage, face);
-
-            FaceGraphic faceGraphic = new FaceGraphic(graphicOverlay, face, res);
-            graphicOverlay.add(faceGraphic);
+            if(training) {
+                Log.d(TAG, "face detected");
+            }
+            else {
+                String res = recognise.recogniseFace(originalCameraImage, face);
+                FaceGraphic faceGraphic = new FaceGraphic(graphicOverlay, face, res);
+                graphicOverlay.add(faceGraphic);
+            }
         }
         graphicOverlay.postInvalidate();
     }

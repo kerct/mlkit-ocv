@@ -27,10 +27,9 @@ public class NameActivity extends AppCompatActivity {
                     Toast.makeText(NameActivity.this, "Please enter a name", Toast.LENGTH_LONG).show();
                 }
                 else {
-                    Toast.makeText(NameActivity.this, name.getText().toString(), Toast.LENGTH_LONG).show();
-                    //Intent intent = new Intent(NameActivity.this, Training.class);
-                    //intent.putExtra("name", name.getText().toString().trim());
-                    //startActivity(intent);
+                    Intent intent = new Intent(NameActivity.this, Training.class);
+                    intent.putExtra("name", name.getText().toString().trim());
+                    startActivity(intent);
                 }
             }
         });
