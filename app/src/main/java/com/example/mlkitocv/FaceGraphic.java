@@ -48,7 +48,8 @@ public class FaceGraphic extends GraphicOverlay.Graphic {
 
         float x = translateX(face.getBoundingBox().centerX());
         float y = translateY(face.getBoundingBox().centerY());
-        canvas.drawText("id: " + res, x + ID_X_OFFSET, y - 3 * ID_Y_OFFSET, idPaint);
+        if(res != null)
+            canvas.drawText("id: " + res, x + ID_X_OFFSET, y - 3 * ID_Y_OFFSET, idPaint);
 
         // Draws a bounding box around the face
         float xOffset = scaleX(face.getBoundingBox().width() / 2.0f);

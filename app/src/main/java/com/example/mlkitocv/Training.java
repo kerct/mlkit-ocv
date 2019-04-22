@@ -77,14 +77,14 @@ public class Training extends AppCompatActivity {
         } else {
             getRuntimePermissions();
         }
-        /*
-        path = Environment.getExternalStorageDirectory()+"/facerecogOCV/";
+
+        path = Environment.getExternalStorageDirectory()+"/facerecogMLKit/";
         nameLabels = new Labels(path);
         boolean success=(new File(path)).mkdirs();
         if (!success)
         {
             Log.e("Error","Error creating directory");
-        }*/
+        }
 
         if(OpenCVLoader.initDebug()){
             Log.i(TAG, "OpenCV loaded");
@@ -92,10 +92,7 @@ public class Training extends AppCompatActivity {
             Log.e(TAG, "OpenCV not loaded");
         }
 
-        /*
         personRecogniser = new PersonRecogniser(path);
-        personRecogniser.train();
-        Log.d(TAG, "personRecogniser trained");*/
     }
 
     private void createCameraSource() {
