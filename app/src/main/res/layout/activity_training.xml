@@ -23,8 +23,20 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="10dp"
+        app:layout_constraintBottom_toTopOf="@id/capture"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:srcCompat="@drawable/flip_camera_white"
+        android:backgroundTint="@color/colorPrimaryDark"
+        app:borderWidth="0dp" />
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/capture"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:srcCompat="@drawable/flip_camera_white" />
+        app:srcCompat="@drawable/camera_solid"
+        android:tint="@android:color/white"/>
 
 </android.support.constraint.ConstraintLayout>
