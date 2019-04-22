@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".NameActivity">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_centerInParent="true">
+
+        <TextView
+            android:id="@+id/titleText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/train_who"
+            android:textSize="20sp"
+            android:textAlignment="center"
+            android:gravity="center"
+            android:textColor="@android:color/black"/>
+
+        <TextView
+            android:id="@+id/subtitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/same_name"
+            android:textSize="15sp"
+            android:textAlignment="center"
+            android:gravity="center"
+            android:padding="15dp" />
+
+        <EditText
+            android:id="@+id/name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="70dp"
+            android:layout_marginRight="40dp"
+            android:layout_marginLeft="40dp"
+            android:layout_marginBottom="70dp"
+            android:inputType="textPersonName"
+            android:textAlignment="center"
+            android:gravity="center" />
+
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/nextButton"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:text="@string/next"
+        android:textSize="25sp"
+        android:textColor="@android:color/white"
+        android:background="@color/colorPrimary"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:textAllCaps="false" />
+
+</RelativeLayout>

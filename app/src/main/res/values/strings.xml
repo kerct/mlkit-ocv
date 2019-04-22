@@ -1,5 +1,8 @@
 <resources>
     <string name="app_name">ML Kit + OCV</string>
     <string name="train">Train</string>
+    <string name="train_who">Who are you going to train?</string>
+    <string name="same_name">Please enter the same name for the same person every time you train</string>
+    <string name="next">Next</string>
     <string name="recognise">Recognise</string>
 </resources>
