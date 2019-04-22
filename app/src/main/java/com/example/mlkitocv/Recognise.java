@@ -14,6 +14,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.Toast;
 
 import com.example.mlkitocv.components.CameraSource;
 import com.example.mlkitocv.components.CameraSourcePreview;
@@ -81,7 +82,8 @@ public class Recognise extends AppCompatActivity {
             getRuntimePermissions();
         }
 
-        path = Environment.getExternalStorageDirectory()+"/facerecogOCV/";
+        //path = Environment.getExternalStorageDirectory() + "/facerecogOCV/";
+        path = Environment.getExternalStorageDirectory() + "/facerecogMLKit/";
         nameLabels = new Labels(path);
         boolean success=(new File(path)).mkdirs();
         if (!success)
@@ -97,7 +99,6 @@ public class Recognise extends AppCompatActivity {
 
         personRecogniser = new PersonRecogniser(path);
         personRecogniser.train();
-        Log.d(TAG, "personRecogniser trained");
     }
 
     public String recogniseFace(Bitmap original, FirebaseVisionFace face) {
@@ -105,7 +106,11 @@ public class Recognise extends AppCompatActivity {
         if(rectInScreen(original, boundingBox)){
             Bitmap bmp = Bitmap.createBitmap(original, boundingBox.left, boundingBox.top,
                     boundingBox.width(), boundingBox.height());
-            return personRecogniser.predict(bmp);
+            String res = personRecogniser.predict(bmp);
+            if(res.equals("can't predict")) {
+                Toast.makeText(Recognise.this, "Need more than one person to predict", Toast.LENGTH_LONG).show();
+                return "Nil";
+            }
         }
         return "Unknown";
     }

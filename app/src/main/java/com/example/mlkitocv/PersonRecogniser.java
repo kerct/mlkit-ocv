@@ -73,6 +73,12 @@ public class PersonRecogniser {
         };
 
         File[] imageFiles = root.listFiles(pngFilter);
+
+        if(imageFiles.length == 0){
+            Log.d(TAG, "not trained");
+            return;
+        }
+
         MatVector images = new MatVector(imageFiles.length);
 
         Mat labels = new Mat(imageFiles.length, 1, CV_32SC1);
@@ -128,7 +134,7 @@ public class PersonRecogniser {
 
         if (!canPredict()){
             Log.d(TAG, "can't predict");
-            return "";
+            return "can't predict";
         }
 
         IntPointer label = new IntPointer(1);
