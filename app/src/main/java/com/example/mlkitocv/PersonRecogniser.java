@@ -49,11 +49,8 @@ public class PersonRecogniser {
         nameLabels = new Labels(path);
     }
 
-    private void savePic(Mat m, String name) {
-        /*
-        Bitmap bmp = Bitmap.createBitmap(m.width(), m.height(), Bitmap.Config.ARGB_8888);
-        Utils.matToBitmap(m, bmp);
-        bmp = Bitmap.createScaledBitmap(bmp, WIDTH, HEIGHT, false);
+    public void savePic(Bitmap bmp, String name) {
+        bmp = Bitmap.createScaledBitmap(bmp, WIDTH, HEIGHT, true);
 
         FileOutputStream f;
         try {
@@ -64,7 +61,7 @@ public class PersonRecogniser {
         } catch (Exception e) {
             Log.e("error",e.getCause() + " " + e.getMessage());
             e.printStackTrace();
-        }*/
+        }
     }
 
     public void train() {

@@ -3,6 +3,8 @@ package com.example.mlkitocv;
 import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.Rect;
 import android.hardware.Camera;
 import android.os.Environment;
 import android.support.design.widget.FloatingActionButton;
@@ -12,10 +14,12 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.Toast;
 
 import com.example.mlkitocv.components.CameraSource;
 import com.example.mlkitocv.components.CameraSourcePreview;
 import com.example.mlkitocv.components.GraphicOverlay;
+import com.google.firebase.ml.vision.face.FirebaseVisionFace;
 
 import org.opencv.android.OpenCVLoader;
 
@@ -25,17 +29,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Training extends AppCompatActivity {
-    private static final String TAG = "Recognise";
+    private static final String TAG = "Training";
     private static final int PERMISSION_REQUESTS = 1;
 
+    private FaceDetectionProcessor faceDetectionProcessor;
     private CameraSource cameraSource = null;
     private CameraSourcePreview preview;
     private GraphicOverlay graphicOverlay;
     private boolean facingBack = true;
 
-    private PersonRecogniser personRecogniser;
-    private String path;
-
+    PersonRecogniser personRecogniser;
+    String path;
     Labels nameLabels;
     String name;
 
@@ -93,6 +97,40 @@ public class Training extends AppCompatActivity {
         }
 
         personRecogniser = new PersonRecogniser(path);
+
+        final FloatingActionButton capture = findViewById(R.id.capture);
+        capture.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                capture();
+            }
+        });
+    }
+
+    private void capture() {
+        List<FirebaseVisionFace> faces = faceDetectionProcessor.getDetectedFaces();
+        Bitmap original = faceDetectionProcessor.getOriginalCameraImage();
+        int numFaces = faces.size();
+        if(numFaces != 1) {
+            Toast.makeText(Training.this, numFaces + " faces detected!", Toast.LENGTH_LONG).show();
+        }
+        else {
+            Rect boundingBox = faces.get(0).getBoundingBox();
+            if(rectInScreen(original, boundingBox)){
+                Bitmap bmp = Bitmap.createBitmap(original, boundingBox.left, boundingBox.top,
+                        boundingBox.width(), boundingBox.height());
+                personRecogniser.savePic(bmp, name);
+                Toast.makeText(Training.this, "Captured!", Toast.LENGTH_LONG).show();
+            }
+            else {
+                Toast.makeText(Training.this, "Please ensure that the whole face is in the frame", Toast.LENGTH_LONG).show();
+            }
+        }
+    }
+
+    private boolean rectInScreen(Bitmap bmp, Rect rect) {
+        Rect screen = new Rect(0, 0, bmp.getWidth(), bmp.getHeight());
+        return screen.contains(rect);
     }
 
     private void createCameraSource() {
@@ -101,7 +139,8 @@ public class Training extends AppCompatActivity {
         }
 
         try {
-            cameraSource.setMachineLearningFrameProcessor(new FaceDetectionProcessor(this));
+            faceDetectionProcessor = new FaceDetectionProcessor(this);
+            cameraSource.setMachineLearningFrameProcessor(faceDetectionProcessor);
         } catch (Exception e) {
             e.printStackTrace();
         }

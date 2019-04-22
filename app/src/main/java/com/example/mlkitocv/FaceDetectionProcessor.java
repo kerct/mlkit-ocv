@@ -23,11 +23,14 @@ public class FaceDetectionProcessor extends VisionProcessorBase<List<FirebaseVis
 
     private static final String TAG = "FaceDetectionProcessor";
     private final FirebaseVisionFaceDetector detector;
-    private boolean training;
+    private boolean isTraining;
     private Recognise recognise;
+    private Training training;
+    private List<FirebaseVisionFace> detectedFaces;
+    private Bitmap originalCameraImage;
 
     public FaceDetectionProcessor(Recognise r) {
-        training = false;
+        isTraining = false;
         recognise = r;
         FirebaseVisionFaceDetectorOptions options =
                 new FirebaseVisionFaceDetectorOptions.Builder().build();
@@ -35,7 +38,7 @@ public class FaceDetectionProcessor extends VisionProcessorBase<List<FirebaseVis
     }
 
     public FaceDetectionProcessor(Training t) {
-        training = true;
+        isTraining = true;
         FirebaseVisionFaceDetectorOptions options =
                 new FirebaseVisionFaceDetectorOptions.Builder().build();
         detector = FirebaseVision.getInstance().getVisionFaceDetector(options);
@@ -70,7 +73,7 @@ public class FaceDetectionProcessor extends VisionProcessorBase<List<FirebaseVis
         for (int i = 0; i < faces.size(); ++i) {
             FirebaseVisionFace face = faces.get(i);
             FaceGraphic faceGraphic;
-            if(training) {
+            if(isTraining) {
                 faceGraphic = new FaceGraphic(graphicOverlay, face, null);
             }
             else {
@@ -80,10 +83,21 @@ public class FaceDetectionProcessor extends VisionProcessorBase<List<FirebaseVis
             graphicOverlay.add(faceGraphic);
         }
         graphicOverlay.postInvalidate();
+
+        detectedFaces = faces;
+        this.originalCameraImage = originalCameraImage;
     }
 
     @Override
     protected void onFailure(@NonNull Exception e) {
         Log.e(TAG, "Face detection failed " + e);
+    }
+
+    public List<FirebaseVisionFace> getDetectedFaces() {
+        return detectedFaces;
+    }
+
+    public Bitmap getOriginalCameraImage() {
+        return originalCameraImage;
     }
 }
