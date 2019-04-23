@@ -111,6 +111,7 @@ public class Recognise extends AppCompatActivity {
                 Toast.makeText(Recognise.this, "Need more than one person to predict", Toast.LENGTH_LONG).show();
                 return "Nil";
             }
+            return res;
         }
         Log.d(TAG, "not predicted");
         return "Unknown";

@@ -132,7 +132,7 @@ public class PersonRecogniser {
         // false: nearest-neighbor scaling; worse image quality, but faster
         bmp = Bitmap.createScaledBitmap(bmp, WIDTH, HEIGHT, true);
 
-        final int PERCENTAGE = 50;
+        final int CONFIDENCE = 100;
 
         if (!canPredict()){
             Log.d(TAG, "can't predict");
@@ -151,15 +151,15 @@ public class PersonRecogniser {
 
         int predictedLabel = label.get(0);
         double predictedConfidence = confidence.get(0);
-        double percentage = getPercentage(predictedConfidence);
-        String formatted = String.format(Locale.ENGLISH, "%.1f", percentage);
+        //double percentage = getPercentage(predictedConfidence);
+        String formatted = String.format(Locale.ENGLISH, "%.1f", predictedConfidence);
 
         // set the associated confidence (distance)
-        if ((predictedLabel != -1) && (percentage > PERCENTAGE)) {
-            return nameLabels.get(predictedLabel) + " " + formatted + "%";
+        if ((predictedLabel != -1) && (predictedConfidence < CONFIDENCE)) {
+            return nameLabels.get(predictedLabel) + " " + formatted;
         }
         else {
-            Log.d(TAG, "predicted " + predictedLabel + ", " + formatted + "%");
+            Log.d(TAG, "predicted " + predictedLabel + ", " + formatted);
             return "Unknown";
         }
     }
