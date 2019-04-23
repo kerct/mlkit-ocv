@@ -35,7 +35,7 @@ public class PersonRecogniser {
 
     private FaceRecognizer fr;
     private String path;
-    private int count = 0;
+    private int count;
     private Labels nameLabels;
 
     PersonRecogniser(String path) {
@@ -54,6 +54,8 @@ public class PersonRecogniser {
 
         FileOutputStream f;
         try {
+            count = new File(path).list().length;
+            Log.d(TAG, "count " + count);
             f = new FileOutputStream(path + name + "-" + count + ".jpg",true);
             count++;
             bmp.compress(Bitmap.CompressFormat.JPEG, 100, f);
@@ -156,8 +158,10 @@ public class PersonRecogniser {
         if ((predictedLabel != -1) && (percentage > PERCENTAGE)) {
             return nameLabels.get(predictedLabel) + " " + formatted + "%";
         }
-        else
+        else {
+            Log.d(TAG, "predicted " + predictedLabel + ", " + formatted + "%");
             return "Unknown";
+        }
     }
 
     private double getPercentage(double dist) {
@@ -168,9 +172,6 @@ public class PersonRecogniser {
     private Mat bitmapToMat(Bitmap bmp) {
         OpenCVFrameConverter.ToMat convertToMat = new OpenCVFrameConverter.ToMat();
         OpenCVFrameConverter.ToOrgOpenCvCoreMat convertToOCVMat = new OpenCVFrameConverter.ToOrgOpenCvCoreMat();
-
-        Log.d(TAG, "width: " + bmp.getWidth());
-        Log.d(TAG, "height: " + bmp.getHeight());
 
         Mat mat = new Mat(bmp.getWidth(), bmp.getHeight());
         //Mat mat = new Mat(WIDTH, HEIGHT);

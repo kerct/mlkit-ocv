@@ -112,6 +112,7 @@ public class Recognise extends AppCompatActivity {
                 return "Nil";
             }
         }
+        Log.d(TAG, "not predicted");
         return "Unknown";
     }
 
