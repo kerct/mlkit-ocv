@@ -31,8 +31,9 @@ import static org.bytedeco.opencv.global.opencv_imgproc.equalizeHist;
 
 public class PersonRecogniser {
     private static final String TAG = "PersonRecogniser";
-    private static final int WIDTH = 128;
-    private static final int HEIGHT = 128;
+    //private static final int WIDTH = 128;
+    //private static final int HEIGHT = 128;
+    private static final int WIDTH = 160;
 
     private FaceRecognizer fr;
     private String path;
@@ -43,7 +44,7 @@ public class PersonRecogniser {
         // using default values
         //fr = EigenFaceRecognizer.create();
         //fr = FisherFaceRecognizer.create();
-        fr = LBPHFaceRecognizer.create();
+        fr = LBPHFaceRecognizer.create(1, 8, 8, 8, 120);
 
         Log.d(TAG, "created face recogniser");
         this.path = path;
@@ -51,7 +52,9 @@ public class PersonRecogniser {
     }
 
     public void savePic(Bitmap bmp, String name) {
-        bmp = Bitmap.createScaledBitmap(bmp, WIDTH, HEIGHT, true);
+        double scaleFactor = WIDTH / (double) bmp.getWidth();
+        bmp = Bitmap.createScaledBitmap(bmp, (int) (bmp.getWidth() * scaleFactor),
+                (int) (bmp.getHeight() * scaleFactor), true);
 
         FileOutputStream f;
         try {
@@ -134,9 +137,11 @@ public class PersonRecogniser {
         // (from the docs) filter
         // true: bilinear filtering; better image quality, worse performance (recommended)
         // false: nearest-neighbor scaling; worse image quality, but faster
-        bmp = Bitmap.createScaledBitmap(bmp, WIDTH, HEIGHT, true);
+        // bmp = Bitmap.createScaledBitmap(bmp, WIDTH, HEIGHT, true);
 
-        final int CONFIDENCE = 120;
+        double scaleFactor = WIDTH / (double) bmp.getWidth();
+        bmp = Bitmap.createScaledBitmap(bmp, (int) (bmp.getWidth() * scaleFactor),
+                (int) (bmp.getHeight() * scaleFactor), true);
 
         if (!canPredict()){
             Log.d(TAG, "can't predict");
@@ -160,11 +165,10 @@ public class PersonRecogniser {
         String formatted = String.format(Locale.ENGLISH, "%.1f", predictedConfidence);
 
         // set the associated confidence (distance)
-        if ((predictedLabel != -1) && (predictedConfidence < CONFIDENCE)) {
+        if ((predictedLabel != -1)) {
             return nameLabels.get(predictedLabel) + " " + formatted;
         }
         else {
-            Log.d(TAG, "predicted " + predictedLabel + ", " + formatted);
             return "Unknown";
         }
     }
