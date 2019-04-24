@@ -27,6 +27,7 @@ import static org.bytedeco.opencv.global.opencv_imgproc.CV_BGRA2GRAY;
 import static org.bytedeco.opencv.global.opencv_imgproc.CV_RGBA2GRAY;
 import static org.bytedeco.opencv.global.opencv_imgproc.cvCvtColor;
 import static org.bytedeco.opencv.global.opencv_imgproc.cvtColor;
+import static org.bytedeco.opencv.global.opencv_imgproc.equalizeHist;
 
 public class PersonRecogniser {
     private static final String TAG = "PersonRecogniser";
@@ -107,6 +108,9 @@ public class PersonRecogniser {
             int label = nameLabels.get(description);
 
             Mat img = imread(image.getAbsolutePath(), IMREAD_GRAYSCALE);
+
+            //equalizeHist(img, img);
+
             images.put(counter, img);
             labelsBuf.put(counter, label);
             counter++;
@@ -132,7 +136,7 @@ public class PersonRecogniser {
         // false: nearest-neighbor scaling; worse image quality, but faster
         bmp = Bitmap.createScaledBitmap(bmp, WIDTH, HEIGHT, true);
 
-        final int CONFIDENCE = 100;
+        final int CONFIDENCE = 120;
 
         if (!canPredict()){
             Log.d(TAG, "can't predict");
@@ -143,11 +147,12 @@ public class PersonRecogniser {
         DoublePointer confidence = new DoublePointer(1);
 
         Mat mat = bitmapToMat(bmp);
-        Mat greyMat = new Mat();
-        cvtColor(mat, greyMat, Imgproc.COLOR_RGB2GRAY);
-        //flip(greyMat, greyMat, 1);
+        cvtColor(mat, mat, Imgproc.COLOR_RGB2GRAY);
+        //flip(mat, mat, 1);
 
-        fr.predict(greyMat, label, confidence);
+        //equalizeHist(mat, mat);
+
+        fr.predict(mat, label, confidence);
 
         int predictedLabel = label.get(0);
         double predictedConfidence = confidence.get(0);
