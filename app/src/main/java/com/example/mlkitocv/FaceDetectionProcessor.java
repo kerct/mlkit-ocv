@@ -25,7 +25,6 @@ public class FaceDetectionProcessor extends VisionProcessorBase<List<FirebaseVis
     private final FirebaseVisionFaceDetector detector;
     private boolean isTraining;
     private Recognise recognise;
-    private Training training;
     private List<FirebaseVisionFace> detectedFaces;
     private Bitmap originalCameraImage;
 
@@ -37,7 +36,7 @@ public class FaceDetectionProcessor extends VisionProcessorBase<List<FirebaseVis
         detector = FirebaseVision.getInstance().getVisionFaceDetector(options);
     }
 
-    public FaceDetectionProcessor(Training t) {
+    public FaceDetectionProcessor() {
         isTraining = true;
         FirebaseVisionFaceDetectorOptions options =
                 new FirebaseVisionFaceDetectorOptions.Builder().build();

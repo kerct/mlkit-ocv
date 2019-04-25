@@ -139,7 +139,7 @@ public class Training extends AppCompatActivity {
         }
 
         try {
-            faceDetectionProcessor = new FaceDetectionProcessor(this);
+            faceDetectionProcessor = new FaceDetectionProcessor();
             cameraSource.setMachineLearningFrameProcessor(faceDetectionProcessor);
         } catch (Exception e) {
             e.printStackTrace();
