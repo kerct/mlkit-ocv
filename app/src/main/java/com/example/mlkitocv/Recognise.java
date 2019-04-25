@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.Matrix;
 import android.graphics.Rect;
 import android.hardware.Camera;
 import android.os.Environment;
@@ -106,6 +107,13 @@ public class Recognise extends AppCompatActivity {
         if(rectInScreen(original, boundingBox)){
             Bitmap bmp = Bitmap.createBitmap(original, boundingBox.left, boundingBox.top,
                     boundingBox.width(), boundingBox.height());
+
+            // face alignment (2D)
+//            Matrix matrix = new Matrix();
+//            matrix.postRotate(face.getHeadEulerAngleZ());
+//            Bitmap scaledBitmap = Bitmap.createScaledBitmap(bmp, bmp.getWidth(), bmp.getHeight(), true);
+//            Bitmap rotatedBitmap = Bitmap.createBitmap(scaledBitmap, 0, 0, scaledBitmap.getWidth(), scaledBitmap.getHeight(), matrix, true);
+
             String res = personRecogniser.predict(bmp);
             if(res.equals("can't predict")) {
                 Toast.makeText(Recognise.this, "Need more than one person to predict", Toast.LENGTH_LONG).show();
