@@ -33,7 +33,7 @@ public class PersonRecogniser {
     private static final String TAG = "PersonRecogniser";
     //private static final int WIDTH = 128;
     //private static final int HEIGHT = 128;
-    private static final int WIDTH = 160;
+    private static final int WIDTH = 128;
 
     private FaceRecognizer fr;
     private String path;
@@ -112,7 +112,7 @@ public class PersonRecogniser {
 
             Mat img = imread(image.getAbsolutePath(), IMREAD_GRAYSCALE);
 
-            //equalizeHist(img, img);
+            equalizeHist(img, img);
 
             images.put(counter, img);
             labelsBuf.put(counter, label);
@@ -120,8 +120,11 @@ public class PersonRecogniser {
         }
 
         if (counter > 0)
-            if (nameLabels.max() > 1)
+            if (nameLabels.max() > 1){
                 fr.train(images, labels);
+                //fr.save(path + "model.yml");
+                //fr.read(path + "model.yml");
+            }
 
         nameLabels.save();
     }
@@ -155,7 +158,7 @@ public class PersonRecogniser {
         cvtColor(mat, mat, Imgproc.COLOR_RGB2GRAY);
         //flip(mat, mat, 1);
 
-        //equalizeHist(mat, mat);
+        equalizeHist(mat, mat);
 
         fr.predict(mat, label, confidence);
 
