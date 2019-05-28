@@ -3,6 +3,7 @@ package com.example.mlkitocv;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Rect;
 
 import com.example.mlkitocv.components.GraphicOverlay;
 import com.google.firebase.ml.vision.face.FirebaseVisionFace;
@@ -61,4 +62,22 @@ public class FaceGraphic extends GraphicOverlay.Graphic {
         canvas.drawRect(left, top, right, bottom, boxPaint);
     }
 
+    public Rect boundingBox() {
+        FirebaseVisionFace face = firebaseVisionFace;
+        if (face == null) {
+            return null;
+        }
+
+        float x = translateX(face.getBoundingBox().centerX());
+        float y = translateY(face.getBoundingBox().centerY());
+
+        // Bounding box around the face
+        float xOffset = scaleX(face.getBoundingBox().width() / 2.0f);
+        float yOffset = scaleY(face.getBoundingBox().height() / 2.0f);
+        float left = x - xOffset;
+        float top = y - yOffset;
+        float right = x + xOffset;
+        float bottom = y + yOffset;
+        return new Rect((int) left, (int) top, (int) right, (int) bottom);
+    }
 }

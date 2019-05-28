@@ -102,32 +102,13 @@ public class Recognise extends AppCompatActivity {
         personRecogniser.train();
     }
 
-    public String recogniseFace(Bitmap original, FirebaseVisionFace face) {
-        Rect boundingBox = face.getBoundingBox();
-        if(rectInScreen(original, boundingBox)){
-            Bitmap bmp = Bitmap.createBitmap(original, boundingBox.left, boundingBox.top,
-                    boundingBox.width(), boundingBox.height());
-
-            // face alignment (2D)
-//            Matrix matrix = new Matrix();
-//            matrix.postRotate(face.getHeadEulerAngleZ());
-//            Bitmap scaledBitmap = Bitmap.createScaledBitmap(bmp, bmp.getWidth(), bmp.getHeight(), true);
-//            Bitmap rotatedBitmap = Bitmap.createBitmap(scaledBitmap, 0, 0, scaledBitmap.getWidth(), scaledBitmap.getHeight(), matrix, true);
-
-            String res = personRecogniser.predict(bmp);
-            if(res.equals("can't predict")) {
-                Toast.makeText(Recognise.this, "Need more than one person to predict", Toast.LENGTH_LONG).show();
-                return "Nil";
-            }
-            return res;
+    public String recogniseFace(Bitmap bmp) {
+        String res = personRecogniser.predict(bmp);
+        if(res.equals("can't predict")) {
+            Toast.makeText(Recognise.this, "Need more than one person to predict", Toast.LENGTH_LONG).show();
+            return "Nil";
         }
-        Log.d(TAG, "not predicted");
-        return "Unknown";
-    }
-
-    private boolean rectInScreen(Bitmap bmp, Rect rect) {
-        Rect screen = new Rect(0, 0, bmp.getWidth(), bmp.getHeight());
-        return screen.contains(rect);
+        return res;
     }
 
     private void createCameraSource() {

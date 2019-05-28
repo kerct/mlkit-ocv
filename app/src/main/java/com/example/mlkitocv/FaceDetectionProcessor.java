@@ -1,7 +1,7 @@
 package com.example.mlkitocv;
 
 import android.graphics.Bitmap;
-import android.hardware.Camera;
+import android.graphics.Rect;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
@@ -67,20 +67,31 @@ public class FaceDetectionProcessor extends VisionProcessorBase<List<FirebaseVis
         if (originalCameraImage != null) {
             CameraImageGraphic imageGraphic = new CameraImageGraphic(graphicOverlay, originalCameraImage);
             graphicOverlay.add(imageGraphic);
+
+            for (int i = 0; i < faces.size(); ++i) {
+                FirebaseVisionFace face = faces.get(i);
+                FaceGraphic faceGraphic;
+                if(isTraining) {
+                    faceGraphic = new FaceGraphic(graphicOverlay, face, null);
+                }
+                else {
+                    Bitmap copy = Bitmap.createScaledBitmap(originalCameraImage,
+                            graphicOverlay.getWidth(), graphicOverlay.getHeight(), true);
+                    Bitmap faceBmp = getFaceBitmap(copy, face, graphicOverlay);
+
+                    // face alignment (2D)
+//            Matrix matrix = new Matrix();
+//            matrix.postRotate(face.getHeadEulerAngleZ());
+//            Bitmap scaledBitmap = Bitmap.createScaledBitmap(bmp, bmp.getWidth(), bmp.getHeight(), true);
+//            Bitmap rotatedBitmap = Bitmap.createBitmap(scaledBitmap, 0, 0, scaledBitmap.getWidth(), scaledBitmap.getHeight(), matrix, true);
+
+                    String res = recognise.recogniseFace(faceBmp);
+                    faceGraphic = new FaceGraphic(graphicOverlay, face, res);
+                }
+                graphicOverlay.add(faceGraphic);
+            }
         }
 
-        for (int i = 0; i < faces.size(); ++i) {
-            FirebaseVisionFace face = faces.get(i);
-            FaceGraphic faceGraphic;
-            if(isTraining) {
-                faceGraphic = new FaceGraphic(graphicOverlay, face, null);
-            }
-            else {
-                String res = recognise.recogniseFace(originalCameraImage, face);
-                faceGraphic = new FaceGraphic(graphicOverlay, face, res);
-            }
-            graphicOverlay.add(faceGraphic);
-        }
         graphicOverlay.postInvalidate();
 
         detectedFaces = faces;
@@ -98,5 +109,20 @@ public class FaceDetectionProcessor extends VisionProcessorBase<List<FirebaseVis
 
     public Bitmap getOriginalCameraImage() {
         return originalCameraImage;
+    }
+
+    private Bitmap getFaceBitmap(Bitmap original, FirebaseVisionFace face, GraphicOverlay overlay) {
+        Rect boundingBox = new FaceGraphic(overlay, face, null).boundingBox();
+        if(rectInScreen(original, boundingBox)){
+            return Bitmap.createBitmap(original, boundingBox.left, boundingBox.top,
+                    boundingBox.width(), boundingBox.height());
+        }
+        Log.d(TAG, "face out of screen");
+        return null;
+    }
+
+    private boolean rectInScreen(Bitmap bmp, Rect rect) {
+        Rect screen = new Rect(0, 0, bmp.getWidth(), bmp.getHeight());
+        return screen.contains(rect);
     }
 }
