@@ -103,6 +103,8 @@ public class Recognise extends AppCompatActivity {
     }
 
     public String recogniseFace(Bitmap bmp) {
+        if(bmp == null)
+            return "Nil";
         String res = personRecogniser.predict(bmp);
         if(res.equals("can't predict")) {
             Toast.makeText(Recognise.this, "Need more than one person to predict", Toast.LENGTH_LONG).show();

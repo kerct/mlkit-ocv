@@ -27,6 +27,7 @@ public class FaceDetectionProcessor extends VisionProcessorBase<List<FirebaseVis
     private Recognise recognise;
     private List<FirebaseVisionFace> detectedFaces;
     private Bitmap originalCameraImage;
+    private GraphicOverlay graphicOverlay;
 
     public FaceDetectionProcessor(Recognise r) {
         isTraining = false;
@@ -63,10 +64,17 @@ public class FaceDetectionProcessor extends VisionProcessorBase<List<FirebaseVis
             @NonNull List<FirebaseVisionFace> faces,
             @NonNull FrameMetadata frameMetadata,
             @NonNull GraphicOverlay graphicOverlay) {
+        detectedFaces = faces;
+        this.graphicOverlay = graphicOverlay;
+
         graphicOverlay.clear();
         if (originalCameraImage != null) {
             CameraImageGraphic imageGraphic = new CameraImageGraphic(graphicOverlay, originalCameraImage);
             graphicOverlay.add(imageGraphic);
+
+            Bitmap copy = Bitmap.createScaledBitmap(originalCameraImage,
+                    graphicOverlay.getWidth(), graphicOverlay.getHeight(), true);
+            this.originalCameraImage = copy;
 
             for (int i = 0; i < faces.size(); ++i) {
                 FirebaseVisionFace face = faces.get(i);
@@ -75,8 +83,6 @@ public class FaceDetectionProcessor extends VisionProcessorBase<List<FirebaseVis
                     faceGraphic = new FaceGraphic(graphicOverlay, face, null);
                 }
                 else {
-                    Bitmap copy = Bitmap.createScaledBitmap(originalCameraImage,
-                            graphicOverlay.getWidth(), graphicOverlay.getHeight(), true);
                     Bitmap faceBmp = getFaceBitmap(copy, face, graphicOverlay);
 
                     // face alignment (2D)
@@ -93,9 +99,6 @@ public class FaceDetectionProcessor extends VisionProcessorBase<List<FirebaseVis
         }
 
         graphicOverlay.postInvalidate();
-
-        detectedFaces = faces;
-        this.originalCameraImage = originalCameraImage;
     }
 
     @Override
@@ -109,6 +112,10 @@ public class FaceDetectionProcessor extends VisionProcessorBase<List<FirebaseVis
 
     public Bitmap getOriginalCameraImage() {
         return originalCameraImage;
+    }
+
+    public Bitmap getFaceBitmap() {
+        return getFaceBitmap(originalCameraImage, detectedFaces.get(0), graphicOverlay);
     }
 
     private Bitmap getFaceBitmap(Bitmap original, FirebaseVisionFace face, GraphicOverlay overlay) {

@@ -115,22 +115,15 @@ public class Training extends AppCompatActivity {
             Toast.makeText(Training.this, numFaces + " faces detected!", Toast.LENGTH_LONG).show();
         }
         else {
-            Rect boundingBox = faces.get(0).getBoundingBox();
-            if(rectInScreen(original, boundingBox)){
-                Bitmap bmp = Bitmap.createBitmap(original, boundingBox.left, boundingBox.top,
-                        boundingBox.width(), boundingBox.height());
-                personRecogniser.savePic(bmp, name);
+            Bitmap faceBmp = faceDetectionProcessor.getFaceBitmap();
+            if(faceBmp != null){
+                personRecogniser.savePic(faceBmp, name);
                 Toast.makeText(Training.this, "Captured!", Toast.LENGTH_LONG).show();
             }
             else {
                 Toast.makeText(Training.this, "Please ensure that the whole face is in the frame", Toast.LENGTH_LONG).show();
             }
         }
-    }
-
-    private boolean rectInScreen(Bitmap bmp, Rect rect) {
-        Rect screen = new Rect(0, 0, bmp.getWidth(), bmp.getHeight());
-        return screen.contains(rect);
     }
 
     private void createCameraSource() {
